@@ -1,136 +1,102 @@
 export default class SwapiService {
-  __apiBase = "https://swapi.co/api";
 
-    /***
-     * Базовая функция
-     * @param url
-     * @returns {Promise<any>}
-     */
-  async getResource(url) {
-    const res = await fetch(`${this.__apiBase}${url}`);
+  _apiBase = 'https://swapi.co/api';
+  _imageBase = 'https://starwars-visualguide.com/assets/img';
+
+  getResource = async (url) => {
+    const res = await fetch(`${this._apiBase}${url}`);
+
     if (!res.ok) {
-      throw new Error(`Could not fetch ${url} recieved ${res.status}`);
+      throw new Error(`Could not fetch ${url}` +
+        `, received ${res.status}`)
     }
     return await res.json();
-  }
+  };
 
-  /***
-   * Получить список все персонажей
-   * @returns {Promise<string>}
-   */
-  async getAllPeople() {
+  getAllPeople = async () => {
     const res = await this.getResource(`/people/`);
-    return res.results.map(this.__transformPerson);
-  }
+    return res.results
+      .map(this._transformPerson)
+      .slice(0, 5);
+  };
 
-  /***
-   * Получить информацию о персонаже
-   * @param id
-   * @returns {Promise<*>}
-   */
-  async getPerson(id) {
+  getPerson = async (id) => {
     const person = await this.getResource(`/people/${id}/`);
-    return this.__transformPerson(person);
-  }
+    return this._transformPerson(person);
+  };
 
-  /***
-   * Получить список всех планет
-   * @returns {Promise<string>}
-   */
-  async getAllPlanets() {
+  getAllPlanets = async () => {
     const res = await this.getResource(`/planets/`);
-    return res.results.map(this.__transformPlanet);
-  }
+    return res.results
+      .map(this._transformPlanet)
+      .slice(0, 5);
+  };
 
-  /***
-   * Получить информацию о планете
-   * @param id
-   * @returns {Promise<*>}
-   */
-  async getPlanet(id) {
-    const planet = await this.getResource(`/planets/${id}`);
-    return this.__transformPlanet(planet);
-  }
+  getPlanet = async (id) => {
+    const planet = await this.getResource(`/planets/${id}/`);
+    return this._transformPlanet(planet);
+  };
 
-  /***
-   * Получить список всех звёздных кораблей
-   * @returns {Promise<string>}
-   */
-  async getAllStarships() {
+  getAllStarships = async () => {
     const res = await this.getResource(`/starships/`);
-    return res.results.map(this.__transformStarship);
-  }
+    return res.results
+      .map(this._transformStarship)
+      .slice(0, 5);
+  };
 
-  /***
-   * Получить информацию о звёздном корабле
-   * @param id
-   * @returns {Promise<*>}
-   */
-  async getStarship(id) {
-    const starship = await this.getResource(`/starships/${id}`);
-    return this.__transformStarship(starship);
-  }
+  getStarship = async (id) => {
+    const starship = await this.getResource(`/starships/${id}/`);
+    return this._transformStarship(starship);
+  };
 
-    /***
-     * Извлекает ID из URL
-     * @param item
-     * @returns {*|string}
-     * @private
-     */
-  __extractId(item) {
+  getPersonImage = ({id}) => {
+    return `${this._imageBase}/characters/${id}.jpg`
+  };
+
+  getStarshipImage = ({id}) => {
+    return `${this._imageBase}/starships/${id}.jpg`
+  };
+
+  getPlanetImage = ({id}) => {
+    return `${this._imageBase}/planets/${id}.jpg`
+  };
+
+  _extractId = (item) => {
     const idRegExp = /\/([0-9]*)\/$/;
     return item.url.match(idRegExp)[1];
-  }
+  };
 
-    /***
-     * Переводит полученные данные о планете в удобный формат
-     * @param planet
-     * @returns {{id: (*|string), name: *, population: null, rotationPeriod: *, diameter: null}}
-     * @private
-     */
-  __transformPlanet = (planet) => {
+  _transformPlanet = (planet) => {
     return {
-      id: this.__extractId(planet),
+      id: this._extractId(planet),
       name: planet.name,
       population: planet.population,
       rotationPeriod: planet.rotation_period,
       diameter: planet.diameter
     };
-  }
+  };
 
-    /***
-     * Переводит полученные данные о персонаже в удобный формат
-     * @param person
-     * @returns {{id: (*|string), name: *, gender: *, birthYear: *, eyeColor: *}}
-     * @private
-     */
-  __transformPerson = (person) => {
+  _transformStarship = (starship) => {
     return {
-      id: this.__extractId(person),
-      name: person.name,
-      gender: person.gender,
-      birthYear: person.birthYear,
-      eyeColor: person.eyeColor
-    };
-  }
-
-    /***
-     * Переводит полученные данные о звёздном корабле в удобный формат
-     * @param starship
-     * @returns {{id: (*|string), name: *, model: *, manufacturer: *, costInCredits: *, length: *, crew: *, passengers: *, cargoCapacity: *}}
-     * @private
-     */
-  __transformStarship = (starship) => {
-    return {
-      id: this.__extractId(starship),
+      id: this._extractId(starship),
       name: starship.name,
       model: starship.model,
       manufacturer: starship.manufacturer,
-      costInCredits: starship.costInCredits,
+      costInCredits: starship.cost_in_credits,
       length: starship.length,
       crew: starship.crew,
       passengers: starship.passengers,
-      cargoCapacity: starship.cargoCapacity
-    };
+      cargoCapacity: starship.cargo_capacity
+    }
+  };
+
+  _transformPerson = (person) => {
+    return {
+      id: this._extractId(person),
+      name: person.name,
+      gender: person.gender,
+      birthYear: person.birth_year,
+      eyeColor: person.eye_color
+    }
   }
 }
